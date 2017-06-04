@@ -87,34 +87,16 @@ const handlers = [];
  * onClickOutsideHOC function defined inside setupHOC().
  */
 function onClickOutsideHOC(WrappedComponent, config) {
-  var _class, _temp2;
+  var _class, _temp;
 
-  return _temp2 = _class = class onClickOutside extends react.Component {
-    constructor(...args) {
-      var _temp;
+  return _temp = _class = class onClickOutside extends react.Component {
 
-      return _temp = super(...args), this.__outsideClickHandler = null, this.enableOnClickOutside = () => {
-        const fn = this.__outsideClickHandler;
-        if (fn && typeof document !== 'undefined') {
-          let events = this.props.eventTypes;
-          if (!events.forEach) {
-            events = [events];
-          }
-          events.forEach(eventName => {
-            const handlerOptions = !this.props.preventDefault && ['touchstart', 'touchmove'].indexOf(eventName) !== -1 ? { passive: true } : null;
-            document.addEventListener(eventName, fn, handlerOptions);
-          });
-        }
-      }, this.disableOnClickOutside = () => {
-        const fn = this.__outsideClickHandler;
-        if (fn && typeof document !== 'undefined') {
-          let events = this.props.eventTypes;
-          if (!events.forEach) {
-            events = [events];
-          }
-          events.forEach(eventName => document.removeEventListener(eventName, fn));
-        }
-      }, this.getRef = ref => this.instanceRef = ref, _temp;
+    constructor(props) {
+      super(props);
+      this.__outsideClickHandler = null;
+      this.enableOnClickOutside = this.enableOnClickOutside.bind(this);
+      this.disableOnClickOutside = this.disableOnClickOutside.bind(this);
+      this.getRef = this.getRef.bind(this);
     }
 
     /**
@@ -124,7 +106,7 @@ function onClickOutsideHOC(WrappedComponent, config) {
       if (!WrappedComponent.prototype.isReactComponent) {
         return this;
       }
-      const ref = this.instanceRef;
+      const ref = this.getRef();
       return ref.getInstance ? ref.getInstance() : ref;
     }
 
@@ -206,13 +188,34 @@ function onClickOutsideHOC(WrappedComponent, config) {
      * Can be called to explicitly enable event listening
      * for clicks and touches outside of this element.
      */
-
+    enableOnClickOutside() {
+      const fn = this.__outsideClickHandler;
+      if (fn && typeof document !== 'undefined') {
+        let events = this.props.eventTypes;
+        if (!events.forEach) {
+          events = [events];
+        }
+        events.forEach(eventName => {
+          const handlerOptions = !this.props.preventDefault && ['touchstart', 'touchmove'].indexOf(eventName) !== -1 ? { passive: true } : null;
+          document.addEventListener(eventName, fn, handlerOptions);
+        });
+      }
+    }
 
     /**
      * Can be called to explicitly disable event listening
      * for clicks and touches outside of this element.
      */
-
+    disableOnClickOutside() {
+      const fn = this.__outsideClickHandler;
+      if (fn && typeof document !== 'undefined') {
+        let events = this.props.eventTypes;
+        if (!events.forEach) {
+          events = [events];
+        }
+        events.forEach(eventName => document.removeEventListener(eventName, fn));
+      }
+    }
 
     addOutsideClickHandler() {
       const fn = this.__outsideClickHandler = generateOutsideCheck(reactDom.findDOMNode(this.getInstance()), this.__clickOutsideHandlerProp, this.props.outsideClickIgnoreClass, this.props.excludeScrollbar, this.props.preventDefault, this.props.stopPropagation);
@@ -243,6 +246,10 @@ function onClickOutsideHOC(WrappedComponent, config) {
       }
     }
 
+    getRef(ref) {
+      this.instanceRef = ref;
+    }
+
     /**
      * Pass-through render
      */
@@ -269,7 +276,7 @@ function onClickOutsideHOC(WrappedComponent, config) {
     outsideClickIgnoreClass: 'ignore-react-onclickoutside',
     preventDefault: false,
     stopPropagation: false
-  }, _class.getClass = () => WrappedComponent.getClass ? WrappedComponent.getClass() : WrappedComponent, _temp2;
+  }, _class.getClass = () => WrappedComponent.getClass ? WrappedComponent.getClass() : WrappedComponent, _temp;
 }
 
 exports['default'] = onClickOutsideHOC;

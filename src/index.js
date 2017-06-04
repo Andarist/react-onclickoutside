@@ -29,6 +29,13 @@ export default function onClickOutsideHOC(WrappedComponent, config) {
 
     static getClass = () => (WrappedComponent.getClass ? WrappedComponent.getClass() : WrappedComponent);
 
+    constructor(props) {
+      super(props);
+      this.enableOnClickOutside = this.enableOnClickOutside.bind(this);
+      this.disableOnClickOutside = this.disableOnClickOutside.bind(this);
+      this.getRef = this.getRef.bind(this);
+    }
+
     /**
      * Access the WrappedComponent's instance.
      */
@@ -122,7 +129,7 @@ export default function onClickOutsideHOC(WrappedComponent, config) {
      * Can be called to explicitly enable event listening
      * for clicks and touches outside of this element.
      */
-    enableOnClickOutside = () => {
+    enableOnClickOutside() {
       const fn = this.__outsideClickHandler;
       if (fn && typeof document !== 'undefined') {
         let events = this.props.eventTypes;
@@ -136,13 +143,13 @@ export default function onClickOutsideHOC(WrappedComponent, config) {
           document.addEventListener(eventName, fn, handlerOptions);
         });
       }
-    };
+    }
 
     /**
      * Can be called to explicitly disable event listening
      * for clicks and touches outside of this element.
      */
-    disableOnClickOutside = () => {
+    disableOnClickOutside() {
       const fn = this.__outsideClickHandler;
       if (fn && typeof document !== 'undefined') {
         let events = this.props.eventTypes;
@@ -151,7 +158,7 @@ export default function onClickOutsideHOC(WrappedComponent, config) {
         }
         events.forEach(eventName => document.removeEventListener(eventName, fn));
       }
-    };
+    }
 
     addOutsideClickHandler() {
       const fn = (this.__outsideClickHandler = generateOutsideCheck(
@@ -189,7 +196,9 @@ export default function onClickOutsideHOC(WrappedComponent, config) {
       }
     }
 
-    getRef = ref => (this.instanceRef = ref);
+    getRef(ref) {
+      this.instanceRef = ref;
+    }
 
     /**
      * Pass-through render
